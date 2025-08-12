@@ -6,8 +6,8 @@ class Product:
     """
     Class that represents the product API of DefectDojo
     """
-    def __init__(self, dd_session: DefectDojoSession):
-        self.session = dd_session
+    def __init__(self, session: DefectDojoSession):
+        self.session = session
         self.PRODUCTS_API = '/api/v2/products/'
 
 
