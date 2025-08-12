@@ -29,7 +29,7 @@ class Findings:
         :param finding_id: Finding id to close
         :return: Answer in JSON format
         """
-        close_subpath = f"{self.FINDINGS_API}/{str(finding_id)}/close/"
+        close_subpath = f"{self.FINDINGS_API}{str(finding_id)}/close/"
         request_url = urljoin(self.session.url, close_subpath)
         response = self.session.post(request_url)
 
