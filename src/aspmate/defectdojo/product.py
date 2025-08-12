@@ -1,23 +1,14 @@
-from typing import Any, Dict
-import requests
 from urllib.parse import urljoin
+from .session import DefectDojoSession
 
-class DefectDojo:
-    def __init__(self, url, key):
-        self.url = url
-        self.key = key
-        self.headers = {'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': 'Token ' + self.key}
-        self.session = requests.Session()
-        self.session.headers.update(self.headers)
 
-        # API endpoints
+class Product:
+    """
+    Class that represents the product API of DefectDojo
+    """
+    def __init__(self, dd_session: DefectDojoSession):
+        self.session = dd_session
         self.PRODUCTS_API = '/api/v2/products/'
-
-
-    def close(self):
-        self.session.close()
 
 
     def create_product(self, name: str, description: str, prod_type: int, **kwargs):
@@ -31,9 +22,13 @@ class DefectDojo:
         :return: Status code, answer in json format
         """
         data = {"name": name, "prod_type": prod_type, "description": description}
-        payload = data | kwargs.get("additional_fields")
+        additional_fields = kwargs.get("additional_fields")
+        if additional_fields:
+            payload = data | additional_fields
+        else:
+            payload = data
 
-        create_url = urljoin(self.url, self.PRODUCTS_API)
+        create_url = urljoin(self.session.url, self.PRODUCTS_API)
         resp = self.session.post(url=create_url, json=payload)
 
         if resp.status_code != 201:
@@ -51,7 +46,7 @@ class DefectDojo:
         :param name: Name of the product to get
         :return: DefectDojo product id
         """
-        search_exact_url = f"{self.url}{self.PRODUCTS_API}?name_exact={name}"
+        search_exact_url = f"{self.session.url}{self.PRODUCTS_API}?name_exact={name}"
         resp = self.session.get(url=search_exact_url)
 
         # I am hardcoding here to fetch the first element
@@ -68,7 +63,7 @@ class DefectDojo:
         :param product_id: ID of the product to delete
         :return: status code, answer in json format
         """
-        delete_url = urljoin(self.url, self.PRODUCTS_API + str(product_id))
+        delete_url = urljoin(self.session.url, self.PRODUCTS_API + str(product_id))
 
         resp = self.session.delete(url=delete_url)
 
